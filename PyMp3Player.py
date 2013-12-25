@@ -7,6 +7,7 @@
 import wx
 import mp3play
 import sys
+from threading import Thread, Event
 
 # begin wxGlade: dependencies
 import gettext
@@ -15,6 +16,18 @@ import gettext
 # begin wxGlade: extracode
 # end wxGlade
 
+currsong = 0
+numsong = 0
+
+class MyThread(Thread):
+		def __init__(self, event, frame):
+				Thread.__init__(self)
+				self.stopped = event
+				self.frame = frame
+		
+		def run(self):
+				while not self.stopped.wait(1):
+						self.frame.KeepTime()
 
 class Frame(wx.Frame):
 		def __init__(self, *args, **kwds):
@@ -29,6 +42,8 @@ class Frame(wx.Frame):
 				self.Add = wx.Button(self, wx.ID_ANY, _("Add"))
 				self.Open = wx.Button(self, wx.ID_ANY, _("Open"))
 				self.slider_1 = wx.Slider(self, wx.ID_ANY, 0, 0, 10)
+				self.time = 0
+				self.state = "IDLE"
 
 				self.__set_properties()
 				self.__do_layout()
@@ -40,6 +55,7 @@ class Frame(wx.Frame):
 				self.Bind(wx.EVT_BUTTON, self.OnPlaylist, self.Playlist)
 				self.Bind(wx.EVT_BUTTON, self.OnOpen, self.Open)
 				self.Bind(wx.EVT_BUTTON, self.OnAdd, self.Add)
+				self.Bind(wx.EVT_CLOSE, self.WhenClosed)
 		
 		def __set_properties(self):
 		    # begin wxGlade: Frame.__set_properties
@@ -81,39 +97,87 @@ class Frame(wx.Frame):
 				if self.mp3.isplaying():
 						self.mp3.pause()
 						self.Play.SetLabel("Play")
+						self.state = "PAUSE"
 				elif self.mp3.ispaused():
 						self.mp3.unpause()
 						self.Play.SetLabel("Pause")
+						self.state = "PLAY"
 				else:		
 						self.mp3.play()
 						self.Play.SetLabel("Pause")
+						self.state = "PLAY"
 
 		def OnStop(self, event):
 				self.mp3.stop()
 				self.Play.SetLabel("Play")
+				self.state = "STOP"
+				self.time = 0
 
 		def OnPrevious(self, event):
-				print "Not implemented\n"
-				event.Skip()
+				self.mp3.stop()
+				self.time = 0
+				global currsong, numsong
+				if currsong > 0:
+						currsong = currsong - 1
+						self.mp3 = mp3play.load(songlist[currsong])
+						self.mp3.play()
+				else:
+						self.state = "END"
 
 		def OnNext(self, event):
-				print "Not implemented\n"
-				event.Skip()
+				self.mp3.stop()
+				self.time = 0
+				global currsong, numsong
+				if currsong < numsong - 1:
+						currsong = currsong + 1
+						self.mp3 = mp3play.load(songlist[currsong])
+						self.mp3.play()
+				else:
+						self.state = "END"
 
 		def OnPlaylist(self, event):
 				print "Not implemented\n"
 				event.Skip()
 
 		def OnOpen(self, event):
-				print "Not implemented\n"
-				event.Skip()
+				openFileDialog = wx.FileDialog(self, "Open MP3 file", "", "", "MP3 files (*.mp3)|*.mp3", wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+				if openFileDialog.ShowModal() != wx.ID_CANCEL:
+						self.mp3.stop()
+						self.mp3 = mp3play.load(openFileDialog.GetPath())
+						self.time = 0
+						self.status = "PLAY"
+						self.mp3.play()
 
 		def OnAdd(self, event):
 				print "Not implemented\n"
 				event.Skip()
 
+		def WhenClosed(self, event):
+				self.e.set()
+				self.Destroy()
+
 		def SetSong(self, mp3):
 				self.mp3 = mp3
+
+		def SetEvent(self, e):
+				self.e = e
+
+		def KeepTime(self):
+				#if self.mp3.isplaying():
+				global currsong, numsong
+				if self.state == "PLAY":
+						self.time = self.time + 1
+						print self.time
+						print self.mp3.seconds()
+						if self.time >= self.mp3.seconds():
+								self.mp3.stop()
+								self.time = 0
+								if currsong < numsong - 1:
+										currsong = currsong + 1
+										self.mp3 = mp3play.load(songlist[currsong])
+										self.mp3.play()
+								else:
+										self.state = "END"
 
 # end of class Frame
 if __name__ == "__main__":
@@ -124,13 +188,31 @@ if __name__ == "__main__":
 		else:	
 				filename = "d:/temp.mp3"
 		mp3 = mp3play.load(filename)
+
+		songlist = []
+		numsong = len(sys.argv) - 1;
+		currsong = 0
+		if len(sys.argv) > 1:
+				for i in range(1,len(sys.argv)):
+						songlist.append(sys.argv[i])
+
+
 		app = wx.PySimpleApp(0)
 		wx.InitAllImageHandlers()
+		stop = Event()
+
 		frame_1 = Frame(None, wx.ID_ANY, "")
+		frame_1.SetEvent(stop)
 		app.SetTopWindow(frame_1)
 		frame_1.SetSong(mp3)
 		frame_1.Show()
+
+		thread = MyThread(stop, frame_1)
+		thread.start()
+
 		if len(sys.argv) > 1:
 				mp3.play()
 				frame_1.Play.SetLabel("Pause")
+				frame_1.state = "PLAY"
+
 		app.MainLoop()

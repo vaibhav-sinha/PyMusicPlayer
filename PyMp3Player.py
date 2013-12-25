@@ -6,6 +6,7 @@
 
 import wx
 import mp3play
+import sys
 
 # begin wxGlade: dependencies
 import gettext
@@ -25,7 +26,10 @@ class Frame(wx.Frame):
 				self.Previous = wx.Button(self, wx.ID_ANY, _("Previous"))
 				self.Next = wx.Button(self, wx.ID_ANY, _("Next"))
 				self.Playlist = wx.Button(self, wx.ID_ANY, _("Playlist"))
+				self.Add = wx.Button(self, wx.ID_ANY, _("Add"))
+				self.Open = wx.Button(self, wx.ID_ANY, _("Open"))
 				self.slider_1 = wx.Slider(self, wx.ID_ANY, 0, 0, 10)
+
 				self.__set_properties()
 				self.__do_layout()
 				# end wxGlade
@@ -34,18 +38,21 @@ class Frame(wx.Frame):
 				self.Bind(wx.EVT_BUTTON, self.OnPrevious, self.Previous)
 				self.Bind(wx.EVT_BUTTON, self.OnNext, self.Next)
 				self.Bind(wx.EVT_BUTTON, self.OnPlaylist, self.Playlist)
-				self.playing = 0
+				self.Bind(wx.EVT_BUTTON, self.OnOpen, self.Open)
+				self.Bind(wx.EVT_BUTTON, self.OnAdd, self.Add)
 		
 		def __set_properties(self):
 		    # begin wxGlade: Frame.__set_properties
 		    self.SetTitle(_("PyMp3Player"))
-		    self.SetSize((266, 140))
+		    self.SetSize((366, 140))
 		    self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_3DLIGHT))
 		    self.Play.SetMinSize((50, 50))
 		    self.Stop.SetMinSize((50, 50))
 		    self.Previous.SetMinSize((50, 50))
 		    self.Next.SetMinSize((50, 50))
 		    self.Playlist.SetMinSize((50, 50))
+		    self.Add.SetMinSize((50, 50))
+		    self.Open.SetMinSize((50, 50))
 		    self.slider_1.SetMinSize((250, 30))
 		    self.slider_1.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_3DLIGHT))
 		    self.slider_1.SetForegroundColour(wx.Colour(0, 0, 255))
@@ -61,6 +68,8 @@ class Frame(wx.Frame):
 		    sizer_3.Add(self.Previous, 0, 0, 0)
 		    sizer_3.Add(self.Next, 0, 0, 0)
 		    sizer_3.Add(self.Playlist, 0, 0, 0)
+		    sizer_3.Add(self.Add, 0, 0, 0)
+		    sizer_3.Add(self.Open, 0, 0, 0)
 		    sizer_2.Add(sizer_3, 1, wx.EXPAND, 0)
 		    sizer_2.Add(self.slider_1, 0, 0, 0)
 		    sizer_1.Add(sizer_2, 1, wx.EXPAND, 0)
@@ -95,6 +104,14 @@ class Frame(wx.Frame):
 				print "Not implemented\n"
 				event.Skip()
 
+		def OnOpen(self, event):
+				print "Not implemented\n"
+				event.Skip()
+
+		def OnAdd(self, event):
+				print "Not implemented\n"
+				event.Skip()
+
 		def SetSong(self, mp3):
 				self.mp3 = mp3
 
@@ -102,11 +119,18 @@ class Frame(wx.Frame):
 if __name__ == "__main__":
 		gettext.install("app") # replace with the appropriate catalog name
 		
-		mp3 = mp3play.load("d:/temp.mp3")
+		if len(sys.argv) > 1:
+				filename = sys.argv[1]
+		else:	
+				filename = "d:/temp.mp3"
+		mp3 = mp3play.load(filename)
 		app = wx.PySimpleApp(0)
 		wx.InitAllImageHandlers()
 		frame_1 = Frame(None, wx.ID_ANY, "")
 		app.SetTopWindow(frame_1)
 		frame_1.SetSong(mp3)
 		frame_1.Show()
+		if len(sys.argv) > 1:
+				mp3.play()
+				frame_1.Play.SetLabel("Pause")
 		app.MainLoop()

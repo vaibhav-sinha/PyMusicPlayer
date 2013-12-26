@@ -8,6 +8,8 @@ import wx
 import mp3play
 import sys
 from threading import Thread, Event
+from AddDialog import AddDialog
+from PlaylistDialog import PlaylistDialog
 
 # begin wxGlade: dependencies
 import gettext
@@ -69,7 +71,7 @@ class Frame(wx.Frame):
 		    self.Playlist.SetMinSize((50, 50))
 		    self.Add.SetMinSize((50, 50))
 		    self.Open.SetMinSize((50, 50))
-		    self.slider_1.SetMinSize((250, 30))
+		    self.slider_1.SetMinSize((350, 30))
 		    self.slider_1.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_3DLIGHT))
 		    self.slider_1.SetForegroundColour(wx.Colour(0, 0, 255))
 		    # end wxGlade
@@ -136,10 +138,10 @@ class Frame(wx.Frame):
 						self.state = "END"
 
 		def OnPlaylist(self, event):
-				print "Not implemented\n"
-				event.Skip()
+				self.playlist_dialog.Show()
 
 		def OnOpen(self, event):
+				global songlist, currsong, numsong
 				openFileDialog = wx.FileDialog(self, "Open MP3 file", "", "", "MP3 files (*.mp3)|*.mp3", wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
 				if openFileDialog.ShowModal() != wx.ID_CANCEL:
 						self.mp3.stop()
@@ -147,10 +149,12 @@ class Frame(wx.Frame):
 						self.time = 0
 						self.status = "PLAY"
 						self.mp3.play()
+						songlist = []
+						currsong = 0
+						numsong = 0
 
 		def OnAdd(self, event):
-				print "Not implemented\n"
-				event.Skip()
+				self.add_dialog.Show()
 
 		def WhenClosed(self, event):
 				self.e.set()
@@ -162,13 +166,17 @@ class Frame(wx.Frame):
 		def SetEvent(self, e):
 				self.e = e
 
+		def SetAddDialog(self, dialog):
+				self.add_dialog = dialog
+
+		def SetPlaylistDialog(self, dialog):
+				self.playlist_dialog = dialog
+
 		def KeepTime(self):
 				#if self.mp3.isplaying():
 				global currsong, numsong
 				if self.state == "PLAY":
 						self.time = self.time + 1
-						print self.time
-						print self.mp3.seconds()
 						if self.time >= self.mp3.seconds():
 								self.mp3.stop()
 								self.time = 0
@@ -202,9 +210,13 @@ if __name__ == "__main__":
 		stop = Event()
 
 		frame_1 = Frame(None, wx.ID_ANY, "")
+		add_dialog = AddDialog(frame_1, wx.ID_ANY, "")
+		playlist_dialog = PlaylistDialog(frame_1, wx.ID_ANY, "")
 		frame_1.SetEvent(stop)
 		app.SetTopWindow(frame_1)
 		frame_1.SetSong(mp3)
+		frame_1.SetAddDialog(add_dialog)
+		frame_1.SetPlaylistDialog(playlist_dialog)
 		frame_1.Show()
 
 		thread = MyThread(stop, frame_1)

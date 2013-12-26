@@ -18,11 +18,11 @@ import gettext
 class PlaylistDialog(wx.Dialog):
 		def __init__(self, *args, **kwds):
 		    # begin wxGlade: PlaylistDialog.__init__
-		    kwds["style"] = wx.DEFAULT_DIALOG_STYLE
+		    kwds["style"] = wx.DEFAULT_DIALOG_STYLE | wx.DIALOG_NO_PARENT
 		    wx.Dialog.__init__(self, *args, **kwds)
 		    self.list_box_1 = wx.ListBox(self, wx.ID_ANY, choices=[])
 		    self.PlayButton = wx.Button(self, wx.ID_ANY, _("Play"))
-		    self.CancelButton = wx.Button(self, wx.ID_CANCEL, "")
+		    self.CancelButton = wx.Button(self, wx.ID_ANY, _("Cancel"))
 		
 		    self.__set_properties()
 		    self.__do_layout()
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
     app = wx.PySimpleApp(0)
     wx.InitAllImageHandlers()
-    dialog_1 = MyDialog(None, wx.ID_ANY, "")
+    dialog_1 = PlaylistDialog(None, wx.ID_ANY, "")
     app.SetTopWindow(dialog_1)
     dialog_1.Show()
     app.MainLoop()

@@ -5,6 +5,7 @@
 #
 
 import wx
+from globvars import *
 
 # begin wxGlade: dependencies
 import gettext
@@ -15,70 +16,72 @@ import gettext
 
 
 class AddDialog(wx.Dialog):
-    def __init__(self, *args, **kwds):
-        # begin wxGlade: AddDialog.__init__
-        kwds["style"] = wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.DIALOG_NO_PARENT
-        wx.Dialog.__init__(self, *args, **kwds)
-        self.SelectLabel = wx.StaticText(self, wx.ID_ANY, _("Select Playlist"))
-        self.PlaylistList = wx.ListBox(self, wx.ID_ANY, choices=[])
-        self.NewLabel = wx.StaticText(self, wx.ID_ANY, _("Create New"))
-        self.NewText = wx.TextCtrl(self, wx.ID_ANY, "")
-        self.SelectButton = wx.Button(self, wx.ID_ANY, _("Select"))
-        self.CreateButton = wx.Button(self, wx.ID_ANY, _("Create"))
-        self.CancelButton = wx.Button(self, wx.ID_ANY, _("Cancel"))
-
-        self.__set_properties()
-        self.__do_layout()
-
-        self.Bind(wx.EVT_BUTTON, self.OnSelect, self.SelectButton)
-        self.Bind(wx.EVT_BUTTON, self.OnCreate, self.CreateButton)
-        self.Bind(wx.EVT_BUTTON, self.OnCancel, self.CancelButton)
-        # end wxGlade
-
-    def __set_properties(self):
-        # begin wxGlade: AddDialog.__set_properties
-        self.SetTitle(_("Add Song to Playlist"))
-        self.SetSize((337, 346))
-        self.SelectLabel.SetMinSize((80, 13))
-        self.PlaylistList.SetMinSize((250, 200))
-        self.NewLabel.SetMinSize((80, 13))
-        self.NewText.SetMinSize((250, 30))
-        # end wxGlade
-
-    def __do_layout(self):
-        # begin wxGlade: AddDialog.__do_layout
-        sizer_3 = wx.BoxSizer(wx.VERTICAL)
-        sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_5 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_4 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_4.Add(self.SelectLabel, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
-        sizer_4.Add(self.PlaylistList, 0, 0, 0)
-        sizer_3.Add(sizer_4, 7, wx.EXPAND, 0)
-        sizer_3.Add((0, 20), 0, 0, 0)
-        sizer_5.Add(self.NewLabel, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-        sizer_5.Add(self.NewText, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-        sizer_3.Add(sizer_5, 1, wx.EXPAND, 0)
-        sizer_3.Add((0, 20), 0, 0, 0)
-        sizer_6.Add((30, 0), 0, 0, 0)
-        sizer_6.Add(self.SelectButton, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-        sizer_6.Add((20, 0), 0, 0, 0)
-        sizer_6.Add(self.CreateButton, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-        sizer_6.Add((20, 0), 0, 0, 0)
-        sizer_6.Add(self.CancelButton, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-        sizer_3.Add(sizer_6, 1, wx.EXPAND, 0)
-        self.SetSizer(sizer_3)
-        self.Layout()
-        # end wxGlade
-
-    def OnSelect(self, event):  # wxGlade: AddDialog.<event_handler>
-        print "Event handler 'OnSelect' not implemented!"
-        event.Skip()
-    def OnCreate(self, event):  # wxGlade: AddDialog.<event_handler>
-        print "Event handler 'OnCreate' not implemented!"
-        event.Skip()
-    def OnCancel(self, event):  # wxGlade: AddDialog.<event_handler>
-        print "Event handler 'OnCancel' not implemented!"
-        event.Skip()
+		def __init__(self, *args, **kwds):
+		    # begin wxGlade: AddDialog.__init__
+		    kwds["style"] = wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.DIALOG_NO_PARENT
+		    wx.Dialog.__init__(self, *args, **kwds)
+		    self.SelectLabel = wx.StaticText(self, wx.ID_ANY, _("Select Playlist"))
+		    self.PlaylistList = wx.ListBox(self, wx.ID_ANY, choices=[])
+		    self.NewLabel = wx.StaticText(self, wx.ID_ANY, _("Create New"))
+		    self.NewText = wx.TextCtrl(self, wx.ID_ANY, "")
+		    self.SelectButton = wx.Button(self, wx.ID_ANY, _("Select"))
+		    self.CreateButton = wx.Button(self, wx.ID_ANY, _("Create"))
+		    self.CancelButton = wx.Button(self, wx.ID_ANY, _("Cancel"))
+		
+		    self.__set_properties()
+		    self.__do_layout()
+		
+		    self.Bind(wx.EVT_BUTTON, self.OnSelect, self.SelectButton)
+		    self.Bind(wx.EVT_BUTTON, self.OnCreate, self.CreateButton)
+		    self.Bind(wx.EVT_BUTTON, self.OnCancel, self.CancelButton)
+		    # end wxGlade
+		
+		def __set_properties(self):
+		    # begin wxGlade: AddDialog.__set_properties
+		    self.SetTitle(_("Add Song to Playlist"))
+		    self.SetSize((337, 346))
+		    self.SelectLabel.SetMinSize((80, 13))
+		    self.PlaylistList.SetMinSize((250, 200))
+		    self.NewLabel.SetMinSize((80, 13))
+		    self.NewText.SetMinSize((250, 30))
+		    # end wxGlade
+		
+		def __do_layout(self):
+		    # begin wxGlade: AddDialog.__do_layout
+		    sizer_3 = wx.BoxSizer(wx.VERTICAL)
+		    sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
+		    sizer_5 = wx.BoxSizer(wx.HORIZONTAL)
+		    sizer_4 = wx.BoxSizer(wx.HORIZONTAL)
+		    sizer_4.Add(self.SelectLabel, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+		    sizer_4.Add(self.PlaylistList, 0, 0, 0)
+		    sizer_3.Add(sizer_4, 7, wx.EXPAND, 0)
+		    sizer_3.Add((0, 20), 0, 0, 0)
+		    sizer_5.Add(self.NewLabel, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
+		    sizer_5.Add(self.NewText, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
+		    sizer_3.Add(sizer_5, 1, wx.EXPAND, 0)
+		    sizer_3.Add((0, 20), 0, 0, 0)
+		    sizer_6.Add((30, 0), 0, 0, 0)
+		    sizer_6.Add(self.SelectButton, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
+		    sizer_6.Add((20, 0), 0, 0, 0)
+		    sizer_6.Add(self.CreateButton, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
+		    sizer_6.Add((20, 0), 0, 0, 0)
+		    sizer_6.Add(self.CancelButton, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
+		    sizer_3.Add(sizer_6, 1, wx.EXPAND, 0)
+		    self.SetSizer(sizer_3)
+		    self.Layout()
+		    # end wxGlade
+		
+		def OnSelect(self, event):  # wxGlade: AddDialog.<event_handler>
+				self.cb(self.PlaylistList.GetStringSelection(), 0)
+				self.Close()
+		def OnCreate(self, event):  # wxGlade: AddDialog.<event_handler>
+				self.cb(self.NewText.GetValue(), 1)
+				self.Close()
+		def OnCancel(self, event):  # wxGlade: AddDialog.<event_handler>
+				self.Close()
+		
+		def SetCallback(self, func):
+				self.cb = func
 # end of class AddDialog
 if __name__ == "__main__":
     gettext.install("app") # replace with the appropriate catalog name

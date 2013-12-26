@@ -18,9 +18,6 @@ import gettext
 # begin wxGlade: extracode
 # end wxGlade
 
-currsong = 0
-numsong = 0
-
 class MyThread(Thread):
 		def __init__(self, event, frame):
 				Thread.__init__(self)
@@ -96,44 +93,52 @@ class Frame(wx.Frame):
 		    # end wxGlade
 		
 		def OnPlay(self, event):
-				if self.mp3.isplaying():
-						self.mp3.pause()
+				global mp3
+				if mp3.isplaying():
+						mp3.pause()
 						self.Play.SetLabel("Play")
 						self.state = "PAUSE"
-				elif self.mp3.ispaused():
-						self.mp3.unpause()
+				elif mp3.ispaused():
+						mp3.unpause()
 						self.Play.SetLabel("Pause")
 						self.state = "PLAY"
 				else:		
-						self.mp3.play()
+						mp3.play()
 						self.Play.SetLabel("Pause")
 						self.state = "PLAY"
 
 		def OnStop(self, event):
-				self.mp3.stop()
+				global mp3
+				mp3.stop()
 				self.Play.SetLabel("Play")
 				self.state = "STOP"
 				self.time = 0
 
 		def OnPrevious(self, event):
-				self.mp3.stop()
+				global mp3
+				mp3.stop()
 				self.time = 0
 				global currsong, numsong
+				global songpath
 				if currsong > 0:
 						currsong = currsong - 1
-						self.mp3 = mp3play.load(songlist[currsong])
-						self.mp3.play()
+						mp3 = mp3play.load(songlist[currsong])
+						mp3.play()
+						songpath = songlist[currsong]
 				else:
 						self.state = "END"
 
 		def OnNext(self, event):
-				self.mp3.stop()
+				global mp3
+				mp3.stop()
 				self.time = 0
 				global currsong, numsong
+				global songpath
 				if currsong < numsong - 1:
 						currsong = currsong + 1
-						self.mp3 = mp3play.load(songlist[currsong])
-						self.mp3.play()
+						mp3 = mp3play.load(songlist[currsong])
+						mp3.play()
+						songpath = songlist[currsong]
 				else:
 						self.state = "END"
 
@@ -142,26 +147,31 @@ class Frame(wx.Frame):
 
 		def OnOpen(self, event):
 				global songlist, currsong, numsong
+				global songpath
+				global mp3
 				openFileDialog = wx.FileDialog(self, "Open MP3 file", "", "", "MP3 files (*.mp3)|*.mp3", wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
 				if openFileDialog.ShowModal() != wx.ID_CANCEL:
-						self.mp3.stop()
-						self.mp3 = mp3play.load(openFileDialog.GetPath())
+						mp3.stop()
+						path = openFileDialog.GetPath()
+						mp3 = mp3play.load(path)
 						self.time = 0
 						self.status = "PLAY"
-						self.mp3.play()
+						mp3.play()
 						songlist = []
 						currsong = 0
 						numsong = 0
+						songpath = path
 
 		def OnAdd(self, event):
-				self.add_dialog.Show()
+				global songpath
+				if songpath:
+						self.add_dialog.Show()
+				else:
+						wx.MessageBox('No active song to add to playlist', 'Alert', wx.OK)
 
 		def WhenClosed(self, event):
 				self.e.set()
 				self.Destroy()
-
-		def SetSong(self, mp3):
-				self.mp3 = mp3
 
 		def SetEvent(self, e):
 				self.e = e
@@ -173,29 +183,69 @@ class Frame(wx.Frame):
 				self.playlist_dialog = dialog
 
 		def KeepTime(self):
-				#if self.mp3.isplaying():
 				global currsong, numsong
+				global songpath
+				global mp3
 				if self.state == "PLAY":
 						self.time = self.time + 1
-						if self.time >= self.mp3.seconds():
-								self.mp3.stop()
+						if self.time >= mp3.seconds():
+								mp3.stop()
 								self.time = 0
 								if currsong < numsong - 1:
 										currsong = currsong + 1
-										self.mp3 = mp3play.load(songlist[currsong])
-										self.mp3.play()
+										mp3 = mp3play.load(songlist[currsong])
+										mp3.play()
+										songpath = songlist[currsong]
 								else:
 										self.state = "END"
 
 # end of class Frame
+
+def PlaylistCallback(name):
+		global mp3, songlist, numsong, currsong, songpath, frame_1, playlist_dialog
+		playlist_dialog.Close()
+		mp3.stop()
+		songlist = []
+		file_pl = open(name.strip())
+		for line in file_pl:
+				songlist.append(line.strip())
+		numsong = len(songlist)
+		currsong = 0
+		mp3 = mp3play.load(songlist[currsong])
+		songpath = songlist[currsong]
+		frame_1.Play.SetLabel("Pause")
+		frame_1.state = "PLAY"
+		frame_1.time = 0
+		mp3.play()
+
+
+def AddCallback(name, c):
+		global songpath, playlist_dialog, add_dialog
+		file_pl = open(name, 'a')
+		file_pl.write(songpath)
+		file_pl.write("\n")
+		file_pl.close()
+		if c:
+				file_pl = open("pl.db", 'a')
+				file_pl.write(name)
+				file_pl.write("\n")
+				file_pl.close()
+				playlist_dialog.list_box_1.Append(name)
+				add_dialog.PlaylistList.Append(name)
+
 if __name__ == "__main__":
 		gettext.install("app") # replace with the appropriate catalog name
+
+		currsong = 0
+		numsong = 0
+		songpath = ""
 		
 		if len(sys.argv) > 1:
 				filename = sys.argv[1]
 		else:	
 				filename = "d:/temp.mp3"
 		mp3 = mp3play.load(filename)
+		songpath = filename
 
 		songlist = []
 		numsong = len(sys.argv) - 1;
@@ -211,12 +261,19 @@ if __name__ == "__main__":
 
 		frame_1 = Frame(None, wx.ID_ANY, "")
 		add_dialog = AddDialog(frame_1, wx.ID_ANY, "")
+		add_dialog.SetCallback(AddCallback)
 		playlist_dialog = PlaylistDialog(frame_1, wx.ID_ANY, "")
+		playlist_dialog.SetCallback(PlaylistCallback)
 		frame_1.SetEvent(stop)
 		app.SetTopWindow(frame_1)
-		frame_1.SetSong(mp3)
 		frame_1.SetAddDialog(add_dialog)
 		frame_1.SetPlaylistDialog(playlist_dialog)
+		
+		file_list = open("pl.db", "r")
+		for line in file_list:
+				playlist_dialog.list_box_1.Append(line)
+				add_dialog.PlaylistList.Append(line)
+		file_list.close()
 		frame_1.Show()
 
 		thread = MyThread(stop, frame_1)
